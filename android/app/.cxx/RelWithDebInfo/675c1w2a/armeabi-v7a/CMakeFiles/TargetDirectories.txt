@@ -1,0 +1,2 @@
+C:/Users/Jagat Shah/AndroidStudioProjects/hr_connect/android/app/.cxx/RelWithDebInfo/675c1w2a/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Jagat Shah/AndroidStudioProjects/hr_connect/android/app/.cxx/RelWithDebInfo/675c1w2a/armeabi-v7a/CMakeFiles/rebuild_cache.dir

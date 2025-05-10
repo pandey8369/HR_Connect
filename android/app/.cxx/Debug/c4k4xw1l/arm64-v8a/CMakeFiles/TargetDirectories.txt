@@ -1,0 +1,2 @@
+C:/Users/Jagat Shah/AndroidStudioProjects/hr_connect/android/app/.cxx/Debug/c4k4xw1l/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/Jagat Shah/AndroidStudioProjects/hr_connect/android/app/.cxx/Debug/c4k4xw1l/arm64-v8a/CMakeFiles/rebuild_cache.dir

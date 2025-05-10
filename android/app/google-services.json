@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "936425649839",
+    "project_id": "hrconnect-70f50",
+    "storage_bucket": "hrconnect-70f50.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:936425649839:android:be2289cc49167e428b065a",
+        "android_client_info": {
+          "package_name": "com.example.hr_connect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDr9Qy8JhF6JcEiCZ1d0NBDbL3MqNZXYLo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
