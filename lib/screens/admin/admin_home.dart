@@ -4,7 +4,6 @@ import 'package:hr_connect/screens/admin/update_policy.dart';
 import 'package:hr_connect/screens/admin/upload_salary.dart';
 import 'package:hr_connect/screens/admin/post_event.dart';
 import 'package:hr_connect/screens/admin/view_attendance.dart';
-
 class AdminHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -61,6 +60,22 @@ class AdminHome extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (_) => ViewAttendance()),
                 );
+              },
+            ),
+            _buildCard(
+              context,
+              icon: Icons.notifications,
+              label: 'Send Notifications',
+              onTap: () {
+                Navigator.pushNamed(context, '/send_notification');
+              },
+            ),
+            _buildCard(
+              context,
+              icon: Icons.lock_reset,
+              label: 'Reset Employee Passwords',
+              onTap: () {
+                Navigator.pushNamed(context, '/reset_password');
               },
             ),
           ],

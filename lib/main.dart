@@ -5,7 +5,11 @@ import 'auth/login_screen.dart';
 import 'auth/signup_screen.dart';
 import 'auth/role_selection_screen.dart';
 import 'screens/admin/admin_home.dart';
+import 'screens/admin/send_notification.dart';
+import 'screens/admin/reset_password.dart';
 import 'screens/employee/employee_home.dart';
+import 'screens/employee/view_notifications.dart';
+import 'screens/employee/profile_settings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,7 +59,18 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
         '/admin_home': (context) => AdminHome(),
-        '/employee_home': (context) => EmployeeHome(),
+        '/send_notification': (context) => SendNotification(),
+        '/reset_password': (context) => ResetPassword(),
+        '/employee_home': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments;
+          return EmployeeHome(user: args as dynamic);
+        },
+        '/view_notifications': (context) {
+          return ViewNotifications();
+        },
+        '/profile_settings': (context) {
+          return ProfileSettings();
+        },
       },
     );
   }

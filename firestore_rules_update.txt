@@ -24,11 +24,10 @@ service cloud.firestore {
     }
 
     // ATTENDANCE collection - employee updates own, admin manages all
-    match /attendance/{recordId} {
-  allow read, write: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
-  allow list: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
-}
-
+    match /attendance/{userId} {
+      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow list: if request.auth != null && (request.auth.uid == userId || isAdmin());
+    }
 
     // SALARIES collection - employee reads own, admin writes
     match /salaries/{recordId} {

@@ -8,6 +8,7 @@ class AppUser {
   final DateTime createdAt;
   final String? phoneNumber;
   final DateTime? dateOfBirth;
+  final String? photoUrl;
 
   AppUser({
     required this.uid,
@@ -17,6 +18,7 @@ class AppUser {
     required this.createdAt,
     this.phoneNumber,
     this.dateOfBirth,
+    this.photoUrl,
   });
 
   // Convert Firestore document to AppUser
@@ -42,6 +44,13 @@ class AppUser {
       dateOfBirth = null;
     }
 
+    String? photoUrl;
+    try {
+      photoUrl = data['photoUrl'] as String?;
+    } catch (e) {
+      photoUrl = null;
+    }
+
     return AppUser(
       uid: uid,
       name: data['name'] ?? '',
@@ -50,6 +59,7 @@ class AppUser {
       createdAt: createdAtTimestamp != null ? createdAtTimestamp.toDate() : DateTime.now(),
       phoneNumber: phoneNumber,
       dateOfBirth: dateOfBirth,
+      photoUrl: photoUrl,
     );
   }
 
@@ -62,6 +72,7 @@ class AppUser {
       'createdAt': createdAt,
       'phoneNumber': phoneNumber,
       'dateOfBirth': dateOfBirth,
+      'photoUrl': photoUrl,
     };
   }
 }

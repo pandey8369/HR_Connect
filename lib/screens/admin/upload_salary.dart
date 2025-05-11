@@ -5,6 +5,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../models/user_model.dart';
+import '../../service/firestore_service.dart';
 
 class UploadSalary extends StatefulWidget {
   @override
@@ -18,7 +20,40 @@ class _UploadSalaryState extends State<UploadSalary> {
 
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirestoreService _firestoreService = FirestoreService();
+
+  List<AppUser> _users = [];
+  AppUser? _selectedUser;
+  bool _isLoadingUsers = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsers();
+  }
+
+  Future<void> _loadUsers() async {
+    setState(() {
+      _isLoadingUsers = true;
+    });
+    try {
+      final users = await _firestoreService.fetchAllUsers();
+      setState(() {
+        _users = users;
+        if (users.isNotEmpty) {
+          _selectedUser = users[0];
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _uploadMessage = 'Failed to load users: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoadingUsers = false;
+      });
+    }
+  }
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -35,7 +70,7 @@ class _UploadSalaryState extends State<UploadSalary> {
   }
 
   Future<void> _uploadFile() async {
-    if (_selectedFile == null) return;
+    if (_selectedFile == null || _selectedUser == null) return;
 
     setState(() {
       _isUploading = true;
@@ -43,17 +78,8 @@ class _UploadSalaryState extends State<UploadSalary> {
     });
 
     try {
-      final user = _auth.currentUser;
-      if (user == null) {
-        setState(() {
-          _uploadMessage = 'User not logged in';
-          _isUploading = false;
-        });
-        return;
-      }
-
       final fileName = _selectedFile!.path.split('/').last;
-      final storageRef = _storage.ref().child('salary_slips/${user.uid}/$fileName');
+      final storageRef = _storage.ref().child('salary_slips/${_selectedUser!.uid}/$fileName');
 
       final uploadTask = storageRef.putFile(_selectedFile!);
       final snapshot = await uploadTask.whenComplete(() {});
@@ -64,7 +90,7 @@ class _UploadSalaryState extends State<UploadSalary> {
       String monthYear = fileName.replaceAll('.pdf', '');
 
       // Save URL in Firestore under salary_slips/uid document
-      final docRef = _firestore.collection('salary_slips').doc(user.uid);
+      final docRef = _firestore.collection('salary_slips').doc(_selectedUser!.uid);
       await docRef.set({
         monthYear: downloadUrl,
       }, SetOptions(merge: true));
@@ -94,6 +120,24 @@ class _UploadSalaryState extends State<UploadSalary> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            _isLoadingUsers
+                ? CircularProgressIndicator()
+                : DropdownButton<AppUser>(
+                    value: _selectedUser,
+                    isExpanded: true,
+                    items: _users.map((user) {
+                      return DropdownMenuItem<AppUser>(
+                        value: user,
+                        child: Text(user.name),
+                      );
+                    }).toList(),
+                    onChanged: (user) {
+                      setState(() {
+                        _selectedUser = user;
+                      });
+                    },
+                  ),
+            SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: _pickFile,
               icon: Icon(Icons.attach_file),

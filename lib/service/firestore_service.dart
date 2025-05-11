@@ -9,7 +9,7 @@ class FirestoreService {
     try {
       await _firestore.collection('users').doc(user.uid).set(user.toMap());
     } catch (e) {
-      throw Exception('Failed to save user data: \$e');
+      throw Exception('Failed to save user data: $e');
     }
   }
 
@@ -18,7 +18,7 @@ class FirestoreService {
     try {
       await _firestore.collection('users').doc(uid).update({'role': newRole});
     } catch (e) {
-      throw Exception('Failed to update user role: \$e');
+      throw Exception('Failed to update user role: $e');
     }
   }
 
@@ -31,7 +31,17 @@ class FirestoreService {
       }
       return null;
     } catch (e) {
-      throw Exception('Failed to get user data: \$e');
+      throw Exception('Failed to get user data: $e');
+    }
+  }
+
+  // Fetch all users
+  Future<List<AppUser>> fetchAllUsers() async {
+    try {
+      final querySnapshot = await _firestore.collection('users').get();
+      return querySnapshot.docs.map((doc) => AppUser.fromMap(doc.id, doc.data())).toList();
+    } catch (e) {
+      throw Exception('Failed to fetch all users: $e');
     }
   }
 
@@ -41,7 +51,7 @@ class FirestoreService {
       final querySnapshot = await _firestore.collection('policies').get();
       return querySnapshot.docs.map((doc) => doc.data()).toList();
     } catch (e) {
-      throw Exception('Failed to fetch company policies: \$e');
+      throw Exception('Failed to fetch company policies: $e');
     }
   }
 
@@ -51,7 +61,7 @@ class FirestoreService {
       final querySnapshot = await _firestore.collection('salary_slips').doc(uid).collection('slips').get();
       return querySnapshot.docs.map((doc) => doc.data()).toList();
     } catch (e) {
-      throw Exception('Failed to fetch salary slips: \$e');
+      throw Exception('Failed to fetch salary slips: $e');
     }
   }
 
@@ -61,7 +71,7 @@ class FirestoreService {
       final querySnapshot = await _firestore.collection('events').orderBy('date').get();
       return querySnapshot.docs.map((doc) => doc.data()).toList();
     } catch (e) {
-      throw Exception('Failed to fetch upcoming events: \$e');
+      throw Exception('Failed to fetch upcoming events: $e');
     }
   }
 
@@ -84,7 +94,7 @@ class FirestoreService {
       });
       return records;
     } catch (e) {
-      throw Exception('Failed to fetch attendance records: \$e');
+      throw Exception('Failed to fetch attendance records: $e');
     }
   }
 
@@ -104,7 +114,7 @@ class FirestoreService {
       };
       await docRef.set(attendanceData, SetOptions(merge: true));
     } catch (e) {
-      throw Exception('Failed to mark check-in: \$e');
+      throw Exception('Failed to mark check-in: $e');
     }
   }
 
@@ -127,7 +137,7 @@ class FirestoreService {
       };
       await docRef.set(attendanceData, SetOptions(merge: true));
     } catch (e) {
-      throw Exception('Failed to mark check-out: \$e');
+      throw Exception('Failed to mark check-out: $e');
     }
   }
 
@@ -145,7 +155,7 @@ class FirestoreService {
       }
       return allAttendance;
     } catch (e) {
-      throw Exception('Failed to fetch all attendance by date: \$e');
+      throw Exception('Failed to fetch all attendance by date: $e');
     }
   }
 
@@ -161,7 +171,54 @@ class FirestoreService {
       attendanceData[date] = updatedData;
       await docRef.set(attendanceData);
     } catch (e) {
-      throw Exception('Failed to update attendance entry: \$e');
+      throw Exception('Failed to update attendance entry: $e');
+    }
+  }
+
+  // Send a notification (to: "all" or specific uid)
+  Future<void> sendNotification({
+    required String to,
+    required String title,
+    required String message,
+  }) async {
+    try {
+      await _firestore.collection('notifications').add({
+        'to': to,
+        'title': title,
+        'message': message,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to send notification: $e');
+    }
+  }
+
+  // Fetch notifications for a user (to == "all" or to == uid), ordered by timestamp desc
+  Stream<List<Map<String, dynamic>>> fetchNotificationsForUser(String uid) {
+    try {
+      return _firestore
+          .collection('notifications')
+          .where('to', whereIn: ['all', uid])
+          .orderBy('timestamp', descending: true)
+          .snapshots()
+          .map((snapshot) =>
+              snapshot.docs.map((doc) => doc.data()).toList());
+    } catch (e) {
+      throw Exception('Failed to fetch notifications: $e');
+    }
+  }
+
+  // Update user profile fields (name, photoUrl)
+  Future<void> updateUserProfile(String uid, {String? name, String? photoUrl}) async {
+    try {
+      Map<String, dynamic> updateData = {};
+      if (name != null) updateData['name'] = name;
+      if (photoUrl != null) updateData['photoUrl'] = photoUrl;
+      if (updateData.isNotEmpty) {
+        await _firestore.collection('users').doc(uid).update(updateData);
+      }
+    } catch (e) {
+      throw Exception('Failed to update user profile: $e');
     }
   }
 }

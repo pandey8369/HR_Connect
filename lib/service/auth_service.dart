@@ -102,6 +102,56 @@ class AuthService {
     }
   }
 
+  // Update current user's password
+  Future<void> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+    required BuildContext context,
+  }) async {
+    try {
+      User? user = _auth.currentUser;
+      if (user == null) throw Exception("No user logged in");
+
+      // Re-authenticate user
+      final cred = EmailAuthProvider.credential(email: user.email!, password: currentPassword);
+      await user.reauthenticateWithCredential(cred);
+
+      // Update password
+      await user.updatePassword(newPassword);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password updated successfully")),
+      );
+    } catch (e) {
+      debugPrint("Update password error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update password: ${e.toString()}")),
+      );
+    }
+  }
+
+  // Admin resets employee password
+  Future<void> resetEmployeePassword({
+    required String employeeEmail,
+    required String newPassword,
+    required BuildContext context,
+  }) async {
+    try {
+      // Firebase Auth does not allow admin to directly reset password programmatically.
+      // Usually, admin triggers password reset email.
+      await _auth.sendPasswordResetEmail(email: employeeEmail);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password reset email sent to $employeeEmail")),
+      );
+    } catch (e) {
+      debugPrint("Reset password error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to reset password: ${e.toString()}")),
+      );
+    }
+  }
+
   // 🚪 Logout
   Future<void> logout(BuildContext context) async {
     await _auth.signOut();

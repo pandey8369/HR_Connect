@@ -35,8 +35,17 @@ class _ViewAttendanceState extends State<ViewAttendance> {
       // Fetch user names for the uids
       Map<String, String> userNames = {};
       for (var uid in attendance.keys) {
-        final user = await _firestoreService.getUserById(uid);
-        userNames[uid] = user?.name ?? 'Unknown User';
+        try {
+          final user = await _firestoreService.getUserById(uid);
+          userNames[uid] = user?.name ?? 'Unknown User';
+        } catch (e) {
+          debugPrint('Error fetching user data for uid $uid: $e');
+          if (e.toString().contains('permission-denied')) {
+            userNames[uid] = 'User (restricted)';
+          } else {
+            userNames[uid] = 'Unknown User';
+          }
+        }
       }
 
       setState(() {
@@ -45,7 +54,7 @@ class _ViewAttendanceState extends State<ViewAttendance> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load attendance: \$e')),
+        SnackBar(content: Text('Failed to load attendance: $e')),
       );
     } finally {
       setState(() {
@@ -68,7 +77,7 @@ class _ViewAttendanceState extends State<ViewAttendance> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save attendance: \$e')),
+        SnackBar(content: Text('Failed to save attendance: $e')),
       );
     } finally {
       setState(() {
@@ -181,15 +190,15 @@ class _ViewAttendanceState extends State<ViewAttendance> {
                     return Card(
                       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       child: Padding(
-                        padding: const EdgeInsets.all(12.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-Text(userName, style: Theme.of(context).textTheme.titleMedium),
-                            const SizedBox(height: 8),
+                            Text(userName, style: Theme.of(context).textTheme.titleLarge),
+                            const SizedBox(height: 12),
                             Row(
                               children: [
-                                const Text('Status: '),
+                                const Text('Status: ', style: TextStyle(fontSize: 16)),
                                 DropdownButton<String>(
                                   value: status,
                                   items: const [
@@ -204,23 +213,23 @@ Text(userName, style: Theme.of(context).textTheme.titleMedium),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 12),
                             Row(
                               children: [
-                                const Text('Check In: '),
+                                const Text('Check In: ', style: TextStyle(fontSize: 16)),
                                 TextButton(
                                   onPressed: status == 'Present'
                                       ? () => _pickTime(context, uid, true)
                                       : null,
-                                  child: Text(checkIn),
+                                  child: Text(checkIn, style: const TextStyle(fontSize: 16)),
                                 ),
-                                const SizedBox(width: 20),
-                                const Text('Check Out: '),
+                                const SizedBox(width: 24),
+                                const Text('Check Out: ', style: TextStyle(fontSize: 16)),
                                 TextButton(
                                   onPressed: status == 'Present'
                                       ? () => _pickTime(context, uid, false)
                                       : null,
-                                  child: Text(checkOut),
+                                  child: Text(checkOut, style: const TextStyle(fontSize: 16)),
                                 ),
                               ],
                             ),
