@@ -3,8 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'auth/login_screen.dart';
 import 'auth/signup_screen.dart';
-import 'home/admin_home.dart';
-import 'home/employee_home.dart';
+import 'auth/role_selection_screen.dart';
+import 'screens/admin/admin_home.dart';
+import 'screens/employee/employee_home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,7 +51,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginScreen(),
+        '/': (context) => RoleSelectionScreen(),
+        '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
         '/admin_home': (context) => AdminHome(),
         '/employee_home': (context) => EmployeeHome(),

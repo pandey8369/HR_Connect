@@ -21,14 +21,35 @@ class AppUser {
 
   // Convert Firestore document to AppUser
   factory AppUser.fromMap(String uid, Map<String, dynamic> data) {
+    Timestamp? createdAtTimestamp;
+    try {
+      createdAtTimestamp = data['createdAt'] as Timestamp?;
+    } catch (e) {
+      createdAtTimestamp = null;
+    }
+
+    String? phoneNumber;
+    try {
+      phoneNumber = data['phoneNumber'] as String?;
+    } catch (e) {
+      phoneNumber = null;
+    }
+
+    DateTime? dateOfBirth;
+    try {
+      dateOfBirth = data['dateOfBirth'] != null ? (data['dateOfBirth'] as Timestamp).toDate() : null;
+    } catch (e) {
+      dateOfBirth = null;
+    }
+
     return AppUser(
       uid: uid,
       name: data['name'] ?? '',
       email: data['email'] ?? '',
       role: data['role'] ?? 'employee',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      phoneNumber: data['phoneNumber'],
-      dateOfBirth: data['dateOfBirth'] != null ? (data['dateOfBirth'] as Timestamp).toDate() : null,
+      createdAt: createdAtTimestamp != null ? createdAtTimestamp.toDate() : DateTime.now(),
+      phoneNumber: phoneNumber,
+      dateOfBirth: dateOfBirth,
     );
   }
 

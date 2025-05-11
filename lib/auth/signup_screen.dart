@@ -38,7 +38,6 @@ class _SignupScreenState extends State<SignupScreen> {
         password: passwordController.text,
         phoneNumber: phoneController.text,
         dateOfBirth: selectedDate,
-        role: 'employee', // HR accounts will be pre-created manually
         context: context,
       );
       setState(() => isLoading = false);
@@ -72,60 +71,78 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Sign Up")),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: "Full Name", border: OutlineInputBorder()),
-            ),
-            SizedBox(height: 12),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(labelText: "Email", border: OutlineInputBorder()),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            SizedBox(height: 12),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(labelText: "Password", border: OutlineInputBorder()),
-              obscureText: true,
-            ),
-            SizedBox(height: 12),
-            TextField(
-              controller: phoneController,
-              decoration: InputDecoration(labelText: "Phone Number", border: OutlineInputBorder()),
-              keyboardType: TextInputType.phone,
-            ),
-            SizedBox(height: 12),
-            InkWell(
-              onTap: () => _selectDate(context),
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: 'Date of Birth',
-                  border: OutlineInputBorder(),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 400),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: "Full Name",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-                child: Text(
-                  selectedDate == null ? 'Select Date' : "${selectedDate!.toLocal()}".split(' ')[0],
-                  style: TextStyle(fontSize: 16),
+                SizedBox(height: 16),
+                TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: "Email",
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
                 ),
-              ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: "Password",
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: true,
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: phoneController,
+                  decoration: InputDecoration(
+                    labelText: "Phone Number",
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+                SizedBox(height: 16),
+                InkWell(
+                  onTap: () => _selectDate(context),
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: 'Date of Birth',
+                      border: OutlineInputBorder(),
+                    ),
+                    child: Text(
+                      selectedDate == null ? 'Select Date' : "${selectedDate!.toLocal()}".split(' ')[0],
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24),
+                isLoading
+                    ? CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: signup,
+                        child: Text("Register"),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(double.infinity, 48),
+                          backgroundColor: Color(0xFF005792),
+                          foregroundColor: Colors.white,
+                          textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ),
+              ],
             ),
-            SizedBox(height: 20),
-            isLoading
-                ? CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: signup,
-      child: Text("Register"),
-      style: ElevatedButton.styleFrom(
-        minimumSize: Size(double.infinity, 48),
-        backgroundColor: Color(0xFF005792), // Professional blue color
-        foregroundColor: Colors.white,
-        textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      ),
-    ),
-          ],
+          ),
         ),
       ),
     );

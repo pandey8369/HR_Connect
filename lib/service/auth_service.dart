@@ -58,18 +58,21 @@ class AuthService {
     required BuildContext context,
   }) async {
     try {
+      debugPrint("Attempting login for email: $email");
       // Firebase Auth: Sign in
       UserCredential userCred = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
       final uid = userCred.user!.uid;
+      debugPrint("Firebase Auth successful, UID: $uid");
 
       // Firestore: Get user by ID
       final fetchedUser = await _firestoreService.getUserById(uid);
       if (fetchedUser == null) {
         throw Exception("User record not found");
       }
+      debugPrint("Fetched user data from Firestore: ${fetchedUser.toMap()}");
 
       AppUser user = fetchedUser;
 
@@ -80,8 +83,9 @@ class AuthService {
         Navigator.pushReplacementNamed(context, '/employee_home', arguments: user);
       }
 
-    } catch (e) {
+    } catch (e, stacktrace) {
       debugPrint("Login error: $e");
+      debugPrint("Stacktrace: $stacktrace");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Login failed: ${e.toString()}")),
       );

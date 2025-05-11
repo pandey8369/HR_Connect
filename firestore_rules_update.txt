@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // USERS collection
+    match /users/{userId} {
+      // Only user can read their own data
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // User can write their own data, admin can write any user
+      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+    }
+
+    // POLICIES collection - viewable by all, editable by admin
+    match /policies/{docId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // EVENTS collection - viewable by all, editable by admin
+    match /events/{docId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // ATTENDANCE collection - employee updates own, admin manages all
+    match /attendance/{recordId} {
+  allow read, write: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
+  allow list: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
+}
+
+
+    // SALARIES collection - employee reads own, admin writes
+    match /salaries/{recordId} {
+      allow read: if isOwner(resource.data.userId);
+      allow write: if isAdmin();
+    }
+
+    // === FUNCTIONS ===
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    function isOwner(ownerId) {
+      return request.auth != null && request.auth.uid == ownerId;
+    }
+  }
+}
