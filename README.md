@@ -1,16 +1,29 @@
-# hr_connect
+cat > README.md << 'EOF'
+# HR Connect
 
-A new Flutter project.
+**HR Connect** is a free, cross-platform Human Resource Management System built using **Flutter** and **Firebase**. It supports both web and mobile platforms with dedicated portals for HR/Admin and Employees.
 
-## Getting Started
+## 🔑 Features
 
-This project is a starting point for a Flutter application.
+- 👥 Separate login for HR and Employees  
+- 📝 HR can post company policies and updates  
+- 📅 Share upcoming office events  
+- 🧾 Upload and view employee salary slips  
+- 📊 Track and export attendance data  
+- 🔔 In-app notifications  
+- 📄 PDF & CSV export functionality  
+- 💻 Accessible via both mobile and desktop  
 
-A few resources to get you started if this is your first Flutter project:
+## 🛠️ Tech Stack
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Frontend**: Flutter  
+- **Backend**: Firebase Auth, Firestore, Cloud Functions  
+- **PDF/CSV Export**: printing, pdf, share_plus, path_provider  
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🚀 Getting Started
+
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/your-username/hr_connect.git
+   cd hr_connect
+   
