@@ -1,48 +1,67 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // USERS collection
-    match /users/{userId} {
-      // Only user can read their own data
-      allow read: if request.auth != null && request.auth.uid == userId;
-      
-      // User can write their own data, admin can write any user
-      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+    
+    // 🔐 Get role from users/{uid}
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // POLICIES collection - viewable by all, editable by admin
+    function isEmployee() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'employee';
+    }
+
+    // 📄 USERS Collection
+    match /users/{uid} {
+      allow read, write: if request.auth != null && (
+        request.auth.uid == uid || isAdmin()
+      );
+    }
+
+    // 📌 POLICIES (read-only for all)
     match /policies/{docId} {
       allow read: if request.auth != null;
       allow write: if isAdmin();
     }
 
-    // EVENTS collection - viewable by all, editable by admin
-    match /events/{docId} {
+    // 🗓️ EVENTS (read-only for all)
+    match /events/{eventId} {
       allow read: if request.auth != null;
       allow write: if isAdmin();
     }
 
-    // ATTENDANCE collection - employee updates own, admin manages all
-    match /attendance/{userId} {
-      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
-      allow list: if request.auth != null && (request.auth.uid == userId || isAdmin());
-    }
-
-    // SALARIES collection - employee reads own, admin writes
-    match /salaries/{recordId} {
-      allow read: if isOwner(resource.data.userId);
+    // 🔔 NOTIFICATIONS
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null;
       allow write: if isAdmin();
     }
 
-    // === FUNCTIONS ===
-    function isAdmin() {
-      return request.auth != null &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    // 🕒 ATTENDANCE
+    match /attendance/{uid} {
+      allow read: if request.auth != null && (
+        request.auth.uid == uid || isAdmin()
+      );
+
+      allow write: if request.auth != null && (
+        // Admin can write any
+        isAdmin()
+        ||
+        // Employee can only update their own document
+        (
+          request.auth.uid == uid &&
+          isEmployee() &&
+          canEmployeeMarkAttendance(uid)
+        )
+      );
     }
 
-    function isOwner(ownerId) {
-      return request.auth != null && request.auth.uid == ownerId;
+    // 💰 SALARY SLIPS
+    match /salary_slips/{uid} {
+      allow read: if request.auth != null && (
+        request.auth.uid == uid || isAdmin()
+      );
+
+      allow write: if isAdmin(); // Only admin can add/edit
     }
   }
 }

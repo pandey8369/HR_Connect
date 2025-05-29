@@ -74,6 +74,12 @@ class _MarkAttendanceState extends State<MarkAttendance> {
         );
         return;
       }
+      if (_statusToday == 'Present' && _checkInTime != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You have already checked in today')),
+        );
+        return;
+      }
       final now = DateFormat('HH:mm').format(DateTime.now());
       await _firestoreService.markCheckIn(user.uid, _todayDate, now);
       await _loadTodayAttendance();
@@ -103,6 +109,18 @@ class _MarkAttendanceState extends State<MarkAttendance> {
         );
         return;
       }
+      if (_statusToday != 'Present' || _checkInTime == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You need to check in first')),
+        );
+        return;
+      }
+      if (_checkOutTime != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You have already checked out today')),
+        );
+        return;
+      }
       final now = DateFormat('HH:mm').format(DateTime.now());
       await _firestoreService.markCheckOut(user.uid, _todayDate, now);
       await _loadTodayAttendance();
@@ -126,6 +144,9 @@ class _MarkAttendanceState extends State<MarkAttendance> {
     final bool canCheckOut = _statusToday == 'Present' && _checkInTime != null && _checkOutTime == null;
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Mark Attendance'),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

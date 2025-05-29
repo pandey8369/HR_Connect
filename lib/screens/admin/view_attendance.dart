@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../service/firestore_service.dart';
 import '../employee/view_my_attendance.dart';
+import '../../utils/export_utils.dart';
 
 class ViewAttendance extends StatefulWidget {
   @override
@@ -239,6 +240,91 @@ class _ViewAttendanceState extends State<ViewAttendance> {
                     );
                   },
                 ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            onPressed: _isSaving ? null : _exportAttendanceCSV,
+            label: const Text('Export CSV'),
+            icon: const Icon(Icons.file_download),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            onPressed: _isSaving ? null : _exportAttendancePDF,
+            label: const Text('Export PDF'),
+            icon: const Icon(Icons.picture_as_pdf),
+          ),
+        ],
+      ),
     );
+  }
+
+  Future<void> _exportAttendanceCSV() async {
+    setState(() {
+      _isSaving = true;
+    });
+    try {
+      // Prepare data for export: Map<String, List<Map<String, dynamic>>> date -> list of attendance records
+      Map<String, List<Map<String, dynamic>>> exportData = {};
+
+      // Group attendance data by date
+      _attendanceData.forEach((uid, record) {
+        final date = DateFormat('yyyy-MM-dd').format(_selectedDate);
+        if (!exportData.containsKey(date)) {
+          exportData[date] = [];
+        }
+        exportData[date]!.add({
+          'employeeId': uid,
+          'status': record['status'] ?? 'Absent',
+          'checkIn': record['checkIn'] ?? '-',
+          'checkOut': record['checkOut'] ?? '-',
+        });
+      });
+
+      final filePath = await ExportUtils.exportAttendanceCSV(exportData);
+      await ExportUtils.shareFile(filePath);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to export CSV: $e')),
+      );
+    } finally {
+      setState(() {
+        _isSaving = false;
+      });
+    }
+  }
+
+  Future<void> _exportAttendancePDF() async {
+    setState(() {
+      _isSaving = true;
+    });
+    try {
+      // Prepare data for export: Map<String, List<Map<String, dynamic>>> date -> list of attendance records
+      Map<String, List<Map<String, dynamic>>> exportData = {};
+
+      // Group attendance data by date
+      _attendanceData.forEach((uid, record) {
+        final date = DateFormat('yyyy-MM-dd').format(_selectedDate);
+        if (!exportData.containsKey(date)) {
+          exportData[date] = [];
+        }
+        exportData[date]!.add({
+          'employeeId': uid,
+          'status': record['status'] ?? 'Absent',
+          'checkIn': record['checkIn'] ?? '-',
+          'checkOut': record['checkOut'] ?? '-',
+        });
+      });
+
+      await ExportUtils.exportAttendancePDF(exportData);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to export PDF: $e')),
+      );
+    } finally {
+      setState(() {
+        _isSaving = false;
+      });
+    }
   }
 }
